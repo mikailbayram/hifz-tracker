@@ -17,6 +17,8 @@ import {
 import { FaUserAlt, FaLock } from "react-icons/fa";
 import * as yup from "yup";
 
+import { auth } from "../../utils/api";
+
 const CFaUserAlt = chakra(FaUserAlt);
 const CFaLock = chakra(FaLock);
 
@@ -47,13 +49,21 @@ export const Login = () => {
     });
   };
 
+  const login = async () => {
+    try {
+      const response = await auth.login({ ...formState });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     schema
       .validate(formState, { abortEarly: false })
       .then((valid) => {
         if (valid) {
-          console.log("VALID !!!");
+          login();
         }
       })
       .catch((errors) => {
@@ -150,7 +160,7 @@ export const Login = () => {
       </Stack>
       <Box>
         New to us?{" "}
-        <Link color="teal.500" href="#">
+        <Link color="teal.500" href="/register">
           Sign Up
         </Link>
       </Box>

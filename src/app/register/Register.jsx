@@ -16,6 +16,8 @@ import {
 import { FaUserAlt, FaLock } from "react-icons/fa";
 
 import * as yup from "yup";
+import { auth } from "../../utils/api";
+import { useAuth } from "../../contexts/AuthContext";
 
 const CFaUserAlt = chakra(FaUserAlt);
 const CFaLock = chakra(FaLock);
@@ -39,6 +41,8 @@ export const Register = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
 
+  const authContext = useAuth();
+
   const handleChange = (e) => {
     setFormState((formState) => {
       return {
@@ -48,13 +52,27 @@ export const Register = () => {
     });
   };
 
+  const register = async () => {
+    try {
+      const response = await auth.register({
+        ...formState,
+        name: formState.fullName,
+      });
+      authContext.signin(response.data.token, response.data.user);
+    } catch (err) {
+      if (err?.response?.data?.email) {
+        setErrors({ ...errors, email: ["Email already in use"] });
+      }
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     schema
       .validate(formState, { abortEarly: false })
       .then((valid) => {
         if (valid) {
-          console.log("VALID !!!");
+          register();
         }
       })
       .catch((errors) => {
@@ -158,7 +176,7 @@ export const Register = () => {
                 colorScheme="teal"
                 width="full"
               >
-                Login
+                Register
               </Button>
             </Stack>
           </form>
